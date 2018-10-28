@@ -4,6 +4,11 @@ const gravatar = require('gravatar');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const keys = require('../../config/keys');
+const passport = require('passport');
+
+// Load input Validation
+const validateRegisterInput = require('../../validation/register');
+const validateLoginInput = require('../../validation/login');
 
 // load User model
 const User = require('../../models/User');
@@ -19,12 +24,18 @@ router.get('/test', (req, res) => res.json({ msg: 'Users Works' }));
 
 // send form via frontend getting request.body obj via body-parser
 router.post('/register', (req, res) => {
+  // setup error object which gets populated via register.js using validator
+  const { errors, isValid } = validateRegisterInput(req.body);
+  //check validation
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
   // mongoose method findOne and insert email
   User.findOne({ email: req.body.email }).then(user => {
     if (user) {
-      return res.status(400).json({
-        email: 'Email already exists'
-      });
+      errors.email = 'Email already exists';
+      return res.status(400).json(errors);
     } else {
       const avatar = gravatar.url(req.body.email, {
         s: '200', //size
@@ -61,6 +72,12 @@ router.post('/register', (req, res) => {
 // @access  Public
 // send form with email and pw
 router.post('/login', (req, res) => {
+  // setup error object which gets populated via register.js using validator
+  const { errors, isValid } = validateLoginInput(req.body);
+  //check validation
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
   const email = req.body.email;
   const password = req.body.password;
 
@@ -68,7 +85,8 @@ router.post('/login', (req, res) => {
   User.findOne({ email }).then(user => {
     // check for user
     if (!user) {
-      return res.status(404).json({ email: 'User not found' });
+      errors.email = 'User not found';
+      return res.status(404).json(errors);
     }
     // check password, need bcrypt to compare as input pw is plain txt whereas stored pw is hashed
     // compare promise returns booleanm if true then return JWT token
@@ -95,10 +113,28 @@ router.post('/login', (req, res) => {
           }
         );
       } else {
-        return res.status(400).json({ password: 'Password incorrect' });
+        errors.password = 'Password incorrect';
+        return res.status(400).json(errors);
       }
     });
   });
 });
+
+// @route   GET api/users/current
+// @desc    Return current user
+// @access  Private
+
+router.get(
+  '/current',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    // req.user = user {name, email, avatar, pw hashed and date}
+    res.json({
+      id: req.user.id,
+      name: req.user.name,
+      email: req.user.email
+    });
+  }
+);
 
 module.exports = router;
