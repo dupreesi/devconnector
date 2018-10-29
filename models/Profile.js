@@ -28,7 +28,7 @@ const ProfileSchema = new Schema({
     required: true
   },
   skills: {
-    type: [String], //array of strings
+    type: [String],
     required: true
   },
   bio: {
@@ -77,7 +77,8 @@ const ProfileSchema = new Schema({
         required: true
       },
       fieldofstudy: {
-        type: String
+        type: String,
+        required: true
       },
       from: {
         type: Date,

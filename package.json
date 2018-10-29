@@ -1,13 +1,13 @@
 {
   "name": "devconnector",
   "version": "1.0.0",
-  "description": "network for developers",
+  "description": "Social network for developers",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "server": "nodemon server.js"
   },
-  "author": "simon dupree",
+  "author": "Brad Traversy",
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
