@@ -4,6 +4,7 @@ const isEmpty = require('./is-empty');
 module.exports = function validateExperienceInput(data) {
   let errors = {};
   // required fields are title, company, from
+  // take wether its undefined or null and turn it into empty string that way we can use validator.isEmpty
   data.title = !isEmpty(data.title) ? data.title : '';
   data.company = !isEmpty(data.company) ? data.company : '';
   data.from = !isEmpty(data.from) ? data.from : '';
