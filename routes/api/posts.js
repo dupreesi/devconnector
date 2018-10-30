@@ -66,7 +66,7 @@ router.delete(
   '/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    Profile.findOne({ user: req.user.id }).then(() => {
+    Profile.findOne({ user: req.user.id }).then(profile => {
       Post.findById(req.params.id).then(post => {
         // check for post owner
         if (post.user.toString() !== req.user.id) {
@@ -81,4 +81,74 @@ router.delete(
     });
   }
 );
+
+// @route   POST api/posts/like/:id
+// @desc    unlike post
+// @access  Private
+router.post(
+  '/unlike/:id',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    Profile.findOne({ user: req.user.id }).then(profile => {
+      Post.findById(req.params.id).then(post => {
+        // check if user has already liked post
+        // see if user id is included in likes array of a specific post
+        // if not yet liked array.length must be 0
+        if (
+          post.likes.filter(like => like.user.toString() === req.user.id)
+            .length === 0
+        ) {
+          return res
+            .status(400)
+            .json({ msg: 'User has not yet liked this post' });
+        }
+
+        //find index to be removed
+        const removeIndex = post.likes
+          .map(item => item.user.toString()) // only user
+          .indexOf(req.user.id); // current user
+
+        // splice like out of array
+        post.likes.splice(removeIndex, 1); // pass in removeIndex and delete 1
+
+        // save
+        post
+          .save()
+          .then(post => res.json(post))
+          .catch(err => res.status(404).json({ msg: 'No post found' }));
+      });
+    });
+  }
+);
+
+// @route   POST api/posts/like/:id
+// @desc    like post
+// @access  Private
+router.post(
+  '/like/:id',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    Profile.findOne({ user: req.user.id }).then(profile => {
+      Post.findById(req.params.id).then(post => {
+        // check if user has already liked post
+        // see if user id is included in likes array of a specific post
+        // if not yet liked array.length must be 0
+        if (
+          post.likes.filter(like => like.user.toString() === req.user.id)
+            .length > 0
+        ) {
+          return res.status(400).json({ msg: 'User already liked this post' });
+        }
+        // add user id to likes array, unshift puts it as first item
+        post.likes.unshift({ user: req.user.id });
+        // save from server into database
+        post
+          .save()
+          .then(post => res.json(post))
+          .catch(err => res.status(404).json({ msg: 'No post found' }));
+      });
+    });
+  }
+);
+
 module.exports = router;
