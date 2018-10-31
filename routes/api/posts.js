@@ -77,7 +77,7 @@ router.delete(
   }
 );
 
-// @route   POST api/posts/like/:id  --> :id is post-id
+// @route   POST api/posts/unlike/:id  --> :id is post-id
 // @desc    unlike post
 // @access  Private
 router.post(
@@ -155,8 +155,6 @@ router.post(
   '/comment/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    console.log(req);
-
     const { errors, isValid } = validatePostInput(req.body);
     // check validation
     if (!isValid) {
@@ -189,8 +187,6 @@ router.delete(
   '/comment/:id/:comment_id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    console.log(req);
-
     Post.findById(req.params.id)
       .then(post => {
         // check if comment exists
