@@ -10,11 +10,6 @@ const Profile = require('../../models/Profile');
 // load Validation
 const validatePostInput = require('../../validation/post');
 
-// @route   GET api/posts/test
-// @desc    Tests post route
-// @access  Public
-router.get('/test', (req, res) => res.json({ msg: 'Posts Works' }));
-
 // @route   GET api/posts
 // @desc    Get all posts
 // @access  Public
@@ -82,7 +77,7 @@ router.delete(
   }
 );
 
-// @route   POST api/posts/like/:id
+// @route   POST api/posts/like/:id  --> :id is post-id
 // @desc    unlike post
 // @access  Private
 router.post(
@@ -102,10 +97,11 @@ router.post(
             .status(400)
             .json({ msg: 'User has not yet liked this post' });
         }
+        console.log(post.likes);
 
         //find index to be removed
         const removeIndex = post.likes
-          .map(item => item.user.toString()) // only user
+          .map(item => item.user.toString()) // create user id array converted to strings
           .indexOf(req.user.id); // current user
 
         // splice like out of array
@@ -151,4 +147,71 @@ router.post(
   }
 );
 
+// @route   POST api/posts/comment/:id
+// @desc    add comment to a post
+// @access  Private
+// find post by url params id,
+router.post(
+  '/comment/:id',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    console.log(req);
+
+    const { errors, isValid } = validatePostInput(req.body);
+    // check validation
+    if (!isValid) {
+      //if any errors send 400 with errors object
+      return res.status(400).json(errors);
+    }
+    Post.findById(req.params.id).then(post => {
+      const newComment = {
+        text: req.body.text,
+        name: req.body.name,
+        avatar: req.body.avatar,
+        user: req.user.id
+      };
+      // add to comments array
+      post.comments.unshift(newComment);
+      // save
+      post
+        .save()
+        .then(post => res.json(post))
+        .catch(err => res.status(404).json({ msg: 'Post not found' }));
+    });
+  }
+);
+
+// @route   DELETE api/posts/comment/:id/:comment_id
+// @desc    remove comment from post
+// @access  Private
+// find post by url params id,
+router.delete(
+  '/comment/:id/:comment_id',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    console.log(req);
+
+    Post.findById(req.params.id)
+      .then(post => {
+        // check if comment exists
+        if (
+          post.comments.filter(
+            comment => comment._id.toString() === req.params.comment_id
+          ).length === 0
+        ) {
+          return res.status(404).json({ msg: 'comment does not exist' });
+        }
+        // get remove index
+        const removeIndex = post.comments
+          .map(item => item._id.toString())
+          .indexOf(req.params.comment_id);
+
+        // splice comment out of array
+        post.comments.splice(removeIndex, 1);
+        // save post
+        post.save().then(post => res.json(post));
+      })
+      .catch(err => res.status(404).json({ msg: 'Post not found' }));
+  }
+);
 module.exports = router;
