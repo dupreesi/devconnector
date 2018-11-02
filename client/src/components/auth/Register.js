@@ -136,7 +136,7 @@ Register.propTypes = {
 };
 
 //function to map state to props called auth so its accessible by this.props.auth
-//state.auth comes from rootReducer in index.js which stets auth: authReducer
+//state.auth comes from rootReducer in index.js which sets auth: authReducer
 //makes it possible to use props in state
 const mapStateToProps = state => ({
   auth: state.auth,
