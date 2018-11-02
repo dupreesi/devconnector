@@ -3,10 +3,9 @@ import setAuthToken from '../utils/setAuthToken';
 import jwt_decode from 'jwt-decode';
 
 import { GET_ERRORS, SET_CURRENT_USER } from './types';
-// register user -> call request and re-direct app to login page on success
+//  sudo for register user -> call request and re-direct app to login page on success
 // if error then dispatch getErrors action to errorsReducer
-
-// use axio to send data to backend using
+// use axio to send data to backend
 // no localhost as proxy value input in package.json
 // as asynchron. data transfer we need to use dispatch (from redux thunk) instead of directly returning payload
 
@@ -54,4 +53,14 @@ export const setCurrentUser = decoded => {
     type: SET_CURRENT_USER,
     payload: decoded
   };
+};
+
+// Log user out
+export const logoutUser = () => dispatch => {
+  // remove token from ls
+  localStorage.removeItem('jwtToken');
+  // remove auth header for future reqs
+  setAuthToken(false);
+  // set current user to empty {} which will set is Authenticated to false
+  dispatch(setCurrentUser({})); // sets isAuthenticated to false as payload is {} and !isEmpty{} = false
 };

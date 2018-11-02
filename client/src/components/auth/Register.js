@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import classnames from 'classnames';
 import { connect } from 'react-redux';
-import { registerUser } from '../../actions/authAction';
+import { registerUser } from '../../actions/authActions';
 
 class Register extends Component {
   constructor() {
@@ -138,6 +138,8 @@ Register.propTypes = {
 //function to map state to props called auth so its accessible by this.props.auth
 //state.auth comes from rootReducer in index.js which sets auth: authReducer
 //makes it possible to use props in state
+// get auth and errors state into Register Page
+
 const mapStateToProps = state => ({
   auth: state.auth,
   errors: state.errors

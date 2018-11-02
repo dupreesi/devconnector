@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
-import { loginUser } from '../../actions/authAction';
+import { loginUser } from '../../actions/authActions';
 
 // general logic redux:
 // reducer transfers action properties --> component receives props and maps it back to state
