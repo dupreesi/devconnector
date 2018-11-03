@@ -16,7 +16,13 @@ class Register extends Component {
       errors: {}
     };
   }
-
+  // lifecycle methods
+  // if user is logged in -> never login or register but always redirection to dashboard
+  componentDidMount() {
+    if (this.props.auth.isAuthenticated) {
+      this.props.history.push('/dashboard');
+    }
+  }
   // get errors from redux state -> gets put into props and set it to component state
   //errors are initially coming from component state
   componentWillReceiveProps(nextProps) {

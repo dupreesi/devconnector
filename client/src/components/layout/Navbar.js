@@ -73,6 +73,7 @@ class Navbar extends Component {
                 </Link>
               </li>
             </ul>
+            {/* display either ul (auth links or guest links) dependend on isAuthenticated coming from the auth prop which comes from the auth state from redux */}
             {isAuthenticated ? authLinks : guestLinks}
           </div>
         </div>
